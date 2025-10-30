@@ -1,0 +1,50 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@theme {
+  --color-primary: #3b82f6;    
+  --color-secondary: #06b6d4;  
+  --color-accent: #0f172a;     
+  --color-neutral: #f1f5f9;    
+  --color-base-100: #ffffff;   
+  --color-border: #e2e8f0;     
+}
+.gradient-bg {
+  background-color: var(--color-neutral);
+}
+
+
+/* Card Styles  */
+.card {
+  background-color: var(--color-base-100);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border);
+}
+
+/* Scrollbar */
+.messages-container::-webkit-scrollbar {
+  width: 6px;
+}
+.messages-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+.messages-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Chat animations */
+.chat-bubble {
+  transition: all 0.3s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chat {
+  animation: fadeIn 0.3s ease;
+}
