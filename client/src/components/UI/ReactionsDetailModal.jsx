@@ -6,13 +6,16 @@ const ReactionsDetailModal = ({ isOpen, onClose, reactions, reactionFilter = nul
   useEffect(() => {
     if (!isOpen || !reactions) return;
 
+    // Get API base URL from environment variable - MUST BE INSIDE useEffect
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
     // Fetch user details for reactions
     const fetchUserDetails = async () => {
       try {
         const userIds = Object.keys(reactions);
         const responses = await Promise.all(
           userIds.map(userId => 
-            fetch(`http://localhost:5000/api/users/${userId}`)
+            fetch(`${API_BASE_URL}/api/users/${userId}`)
               .then(res => res.json())
               .catch(() => null)
           )

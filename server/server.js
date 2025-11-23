@@ -1,3 +1,6 @@
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
+console.log('DNS resolution configured for IPv4 first');
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -19,7 +22,7 @@ const server = createServer(app);
 
 app.use(cors({
   origin: process.env.CLIENT_URL || "http://localhost:3000"
-}));
+})); 
 
 app.use(express.json({ limit: '10mb' }));
 

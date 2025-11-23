@@ -12,6 +12,13 @@ const FileOverview = ({ messages, currentUser, isOpen, onClose }) => {
     setFiles(fileMessages);
   }, [messages]);
 
+  const handleDownload = (fileMsg) => {
+    // Get API base URL from environment variable - INSIDE the function
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const fileUrl = fileMsg.file.url || `${API_BASE_URL}/api/files/${fileMsg.file.filename}`;
+    window.open(fileUrl, '_blank');
+  };
+
   const categorizeFile = (file) => {
     const mimeType = file.mimetype || '';
     if (mimeType.startsWith('image/')) return 'images';
@@ -192,11 +199,7 @@ const FileOverview = ({ messages, currentUser, isOpen, onClose }) => {
                       <div className="flex gap-2 mt-2">
                         <button 
                           className="btn btn-xs btn-primary"
-                          onClick={() => {
-                            // Trigger download
-                            const fileUrl = fileMsg.file.url || `http://localhost:5000/api/files/${fileMsg.file.filename}`;
-                            window.open(fileUrl, '_blank');
-                          }}
+                          onClick={() => handleDownload(fileMsg)}
                         >
                            Download
                         </button>
@@ -204,7 +207,6 @@ const FileOverview = ({ messages, currentUser, isOpen, onClose }) => {
                         <button 
                           className="btn btn-xs btn-ghost"
                           onClick={() => {
-                           
                             const messageElement = document.querySelector(`[data-message-id="${fileMsg._id}"]`);
                             if (messageElement) {
                               messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });

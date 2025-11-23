@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
+
 let socketInstance = null;
 let socketListeners = new Set();
 
@@ -10,9 +11,12 @@ export const useSocket = () => {
   const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
+    // Get API base URL from environment variable - MUST BE INSIDE useEffect
+   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
     // SINGLE socket instance for entire app
     if (!socketInstance) {
-      socketInstance = io('http://localhost:5000');
+      socketInstance = io(API_BASE_URL);
       console.log('Creating NEW socket instance:', socketInstance.id);
       
       

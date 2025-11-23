@@ -7,6 +7,9 @@ const FileUpload = ({ onFileUpload, currentUser, room = 'global' }) => {
   const handleFileSelect = async (file) => {
     if (!file) return;
 
+    // Get API base URL from environment variable - INSIDE the function
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
     setIsUploading(true);
 
     const formData = new FormData();
@@ -25,7 +28,7 @@ const FileUpload = ({ onFileUpload, currentUser, room = 'global' }) => {
         room: room
       });
 
-      const response = await fetch('http://localhost:5000/api/files/upload', {
+      const response = await fetch(`${API_BASE_URL}/api/files/upload`, {
         method: 'POST',
         body: formData,
       });

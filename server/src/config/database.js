@@ -1,9 +1,11 @@
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
+import dns from 'dns'; 
+dns.setDefaultResultOrder('ipv4first');
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/pinghub';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 class Database {
   constructor() {
@@ -14,19 +16,35 @@ class Database {
 
   async connect() {
     try {
-      this.client = new MongoClient(MONGODB_URI);
+      console.log('Attempting to connect to MongoDB...');
+      
+      this.client = new MongoClient(MONGODB_URI, {
+        serverSelectionTimeoutMS: 30000, // 30 seconds timeout
+        socketTimeoutMS: 45000, // 45 seconds socket timeout
+        maxPoolSize: 10,
+        minPoolSize: 1,
+      });
+      
       await this.client.connect();
       this.db = this.client.db();
       this.isConnected = true;
       
-      console.log('Connected to MongoDB:', this.db.databaseName);
-      
+      console.log('✅ Connected to MongoDB:', this.db.databaseName);
       
       await this.initializeCollections();
       
       return this.db;
     } catch (error) {
-      console.error('MongoDB connection error:', error);
+      console.error(' MongoDB connection error:', error);
+      
+      // More specific error handling
+      if (error.name === 'MongoServerSelectionError') {
+        console.error('🔧 Tips:');
+        console.error('1. Check your MongoDB Atlas IP whitelist');
+        console.error('2. Verify your internet connection');
+        console.error('3. Check if MongoDB Atlas cluster is running');
+      }
+      
       throw error;
     }
   }
@@ -39,7 +57,7 @@ class Database {
       
       if (!messagesCollectionExists) {
         await this.db.createCollection('messages');
-        console.log(' Created messages collection');
+        console.log('✅ Created messages collection');
       }
 
       // Create indexes
@@ -47,7 +65,7 @@ class Database {
       await this.db.collection('messages').createIndex({ room: 1 });
       await this.db.collection('messages').createIndex({ userId: 1 });
       
-      console.log(' Database indexes created');
+      console.log('✅ Database indexes created');
     } catch (error) {
       console.error('Error initializing collections:', error);
     }

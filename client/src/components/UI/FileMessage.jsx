@@ -10,12 +10,15 @@ const FileMessage = ({ file, currentUser, messageUser }) => {
   }, [file]);
 
   const checkFileStatus = async () => {
+    // Get API base URL from environment variable - INSIDE the function
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
     try {
       // Extract filename from URL 
       const filename = file.filename || file.url?.split('/').pop();
       if (!filename) return;
 
-      const response = await fetch(`http://localhost:5000/api/files/info/${filename}`);
+      const response = await fetch(`${API_BASE_URL}/api/files/info/${filename}`);
       if (response.ok) {
         const data = await response.json();
         setFileInfo(data);
@@ -33,10 +36,13 @@ const FileMessage = ({ file, currentUser, messageUser }) => {
   const handleDownload = async () => {
     if (isExpired) return;
 
+    // Get API base URL from environment variable - INSIDE the function
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
     setIsDownloading(true);
     try {
       
-      const fileUrl = file.url || `http://localhost:5000/api/files/${file.filename}`;
+      const fileUrl = file.url || `${API_BASE_URL}/api/files/${file.filename}`;
       const response = await fetch(fileUrl);
       
       if (response.ok) {
