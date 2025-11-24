@@ -1,0 +1,48 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        # REMOVE cache lines for now
+    
+    - name: Install dependencies
+      run: npm ci
+      working-directory: ./server
+    
+    - name: Check server syntax and dependencies
+      run: |
+        cd server
+        # Just check if Node can parse the server file without starting it
+        node --check server.js
+        echo "✅ Server syntax is valid"
+    
+    - name: Validate environment setup
+      run: |
+        if [ -f server/.env.example ]; then
+          echo "✅ .env.example exists"
+        else
+          echo "❌ .env.example missing"
+          exit 1
+        fi
+    
+    - name: List project structure
+      run: |
+        echo "Project structure:"
+        find . -name "*.js" -o -name "*.json" -o -name "*.yml" | head -20
+        echo "Server folder contents:"
+        ls -la server/
