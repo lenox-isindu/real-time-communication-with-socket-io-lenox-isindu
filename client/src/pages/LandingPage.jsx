@@ -30,9 +30,9 @@ const LandingPage = ({ onLogin }) => {
           waveSpeed: 0.75,
           zoom: 0.65
         });
-      } catch (_error) {
-        console.log('Vanta.js not loaded, using fallback background');
-      }
+      } catch {
+  console.log('Vanta.js not loaded, using fallback background');
+}
     };
 
     initVanta();

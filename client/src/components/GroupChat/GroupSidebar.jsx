@@ -121,7 +121,7 @@ const GroupSidebar = ({ group, currentUser, messages = [] }) => {
           <div className="space-y-3 mt-4 max-h-60 overflow-y-auto">
             {groupMembers.length > 0 ? (
               groupMembers.map((member) => {
-                const { isOnline, lastSeen } = getMemberOnlineStatus(member.userId);
+                const { isOnline } = getMemberOnlineStatus(member.userId);
                 const isAdmin = group.admins?.includes(member.userId);
                 const isYou = member.userId === currentUser.userId || member.userId === currentUser.id;
                 
