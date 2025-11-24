@@ -1,15 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
-const FileMessage = ({ file, currentUser, messageUser }) => {
+const FileMessage = ({ file, messageUser }) => {
   const [fileInfo, setFileInfo] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
 
-  useEffect(() => {
-    checkFileStatus();
-  }, [file]);
-
-  const checkFileStatus = async () => {
+  const checkFileStatus = useCallback(async () => {
     // Get API base URL from environment variable - INSIDE the function
     const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -31,7 +27,11 @@ const FileMessage = ({ file, currentUser, messageUser }) => {
         setIsExpired(true);
       }
     }
-  };
+  }, [file]);
+
+  useEffect(() => {
+    checkFileStatus();
+  }, [checkFileStatus]);
 
   const handleDownload = async () => {
     if (isExpired) return;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSocket } from '../../hooks/useSocket';
 import FileUpload from '../UI/FileUpload';
 
@@ -7,7 +7,18 @@ const GroupMessageInput = ({ currentUser, group }) => {
   const { socket } = useSocket();
   const [isTyping, setIsTyping] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const typingTimeoutRef = React.useRef(null);
+  const typingTimeoutRef = useRef(null);
+
+  const handleStopTyping = useCallback(() => {
+    if (isTyping) {
+      setIsTyping(false);
+      socket.emit('user:typing', {
+        username: currentUser.username,
+        isTyping: false,
+        room: group.groupId
+      });
+    }
+  }, [isTyping, socket, currentUser.username, group.groupId]);
 
   const sendMessage = () => {
     if (message.trim() && socket) {
@@ -101,17 +112,6 @@ const GroupMessageInput = ({ currentUser, group }) => {
     }, 2000);
   };
 
-  const handleStopTyping = () => {
-    if (isTyping) {
-      setIsTyping(false);
-      socket.emit('user:typing', {
-        username: currentUser.username,
-        isTyping: false,
-        room: group.groupId
-      });
-    }
-  };
-
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -129,14 +129,14 @@ const GroupMessageInput = ({ currentUser, group }) => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       handleStopTyping();
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
     };
-  }, []);
+  }, [handleStopTyping]);
 
   return (
     <div className="p-4 border-t border-base-300">

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import FileMessage from './FileMessage';
 
-const FileOverview = ({ messages, currentUser, isOpen, onClose }) => {
+const FileOverview = ({ messages, isOpen, onClose }) => {
   const [files, setFiles] = useState([]);
   const [filter, setFilter] = useState('all'); 
   const [sortBy, setSortBy] = useState('newest'); 
