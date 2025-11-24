@@ -41,7 +41,7 @@ jobs:
           echo "Frontend .env.example exists"
         else
           echo "Frontend .env.example missing - creating template"
-          cat > .env.example << EOF
+          cat > .env.example <<EOF
 VITE_API_URL=your_backend_api_url_here
 EOF
         fi
