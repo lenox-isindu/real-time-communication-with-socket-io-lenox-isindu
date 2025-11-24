@@ -21,35 +21,34 @@ jobs:
     
     - name: Install dependencies
       run: npm ci
-      working-directory: client
+      working-directory: ./client
     
     - name: Run linting
       run: |
+        cd client
         npm run lint
         echo "Linting passed"
-      working-directory: client
     
     - name: Build application
       run: |
+        cd client
         npm run build
         echo "Frontend builds successfully"
-      working-directory: client
     
     - name: Validate environment setup
       run: |
-        if [ -f .env.example ]; then
+        if [ -f client/.env.example ]; then
           echo "Frontend .env.example exists"
         else
           echo "Frontend .env.example missing - creating template"
-          cat > .env.example <<EOF
+          cat > client/.env.example << 'EOF'
 VITE_API_URL=your_backend_api_url_here
 EOF
         fi
-      working-directory: client
     
     - name: Verify build output
       run: |
+        cd client
         echo "Build output contents:"
         ls -la dist/
         echo "Build output generated successfully"
-      working-directory: client
