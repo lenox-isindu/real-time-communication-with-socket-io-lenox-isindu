@@ -7,6 +7,10 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+import compression from 'compression';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+
 import database from './src/config/database.js';
 import userService from './src/services/userService.js';
 import messageService from './src/services/messageService.js';
@@ -16,6 +20,8 @@ import messageRoutes from './src/routes/messageRoutes.js';
 import fileRoutes from './src/routes/fileRoutes.js';
 
 dotenv.config();
+
+
 
 const app = express();
 const server = createServer(app);
@@ -32,7 +38,53 @@ app.use('/api/files', express.static('uploads'));
 
 const connectedUsers = new Map();
 
+
+
+// Security middleware
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+app.use(compression());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  message: 'Too many requests from this IP, please try again later.'
+});
+app.use('/api/', limiter);
+
 // Routes
+
+
+// Health check endpoints
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    environment: process.env.NODE_ENV || 'development',
+    onlineUsers: connectedUsers.size,
+    database: database.isConnected ? 'Connected' : 'Disconnected'
+  });
+});
+
+app.get('/api/health/db', async (req, res) => {
+  try {
+    res.status(200).json({
+      database: database.isConnected ? 'connected' : 'disconnected',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(503).json({
+      database: 'error',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 app.get('/', (req, res) => {
   res.json({ 
     message: 'PingHub Server is running! 🚀',
@@ -789,6 +841,31 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+
+
+// Error handling middleware
+app.use((error, req, res, next) => {
+  console.error('Error:', {
+    message: error.message,
+    url: req.url,
+    method: req.method,
+    timestamp: new Date().toISOString()
+  });
+
+  res.status(error.status || 500).json({
+    error: process.env.NODE_ENV === 'production' 
+      ? 'Internal Server Error' 
+      : error.message
+  });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    error: 'Route not found',
+    path: req.originalUrl
+  });
+});
 
 startServer();
 
