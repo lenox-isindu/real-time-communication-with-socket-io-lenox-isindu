@@ -12,11 +12,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./client
-          vercel-args: '--prod --yes'  
+          node-version: '18'
+          
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+        
+      - name: Deploy to Vercel
+        run: |
+          cd client
+          vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --yes
